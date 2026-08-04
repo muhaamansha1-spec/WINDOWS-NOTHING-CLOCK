@@ -1,0 +1,67 @@
+import { forwardRef, type SelectHTMLAttributes } from 'react';
+
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  label?: string;
+  error?: string;
+  helperText?: string;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  ({ label, error, helperText, options, placeholder, className = '', id, ...props }, ref) => {
+    const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label htmlFor={selectId} className="label">
+            {label}
+          </label>
+        )}
+        <div className="relative">
+          <select
+            ref={ref}
+            id={selectId}
+            className={`
+              input appearance-none pr-11 bg-bg-tertiary
+              ${error ? 'border-red-500/50 focus-visible:border-red-500 focus-visible:ring-red-500' : ''}
+              ${className}
+            `}
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? `${selectId}-error` : helperText ? `${selectId}-helper` : undefined}
+            {...props}
+          >
+            {placeholder && (
+              <option value="" disabled>
+                {placeholder}
+              </option>
+            )}
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-tertiary">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        {error && (
+          <p id={`${selectId}-error`} className="mt-2 text-sm text-red-400 font-mono" role="alert">
+            {error}
+          </p>
+        )}
+        {helperText && !error && (
+          <p id={`${selectId}-helper`} className="mt-2 text-sm text-text-tertiary font-mono">
+            {helperText}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+Select.displayName = 'Select';
